@@ -1,0 +1,16 @@
+{% extends 'shop/basic.html' %}
+
+{% block body %} 
+<div class="wrapper">
+  <form method="post" action="{% url 'verify_email_otp' %}">
+    <h2 class="my-3">Email Verification</h2>
+    {% csrf_token %}
+    <div class="input-box">
+      <label for="otp">Enter OTP</label><br>
+      <input id="otp" type="text" name="otp" placeholder="Enter OTP received in your email" required/><br>
+
+      <button class="button my-3" type="submit">Verify OTP</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends 'shop/basic.html' %}
+{% block title %} Contact us {% endblock %}
+{% block css %} {% endblock %}
+{% block body %}
+<div class="container">
+    
+    <form action="/shop/contact/" method="POST" class="row g-3 my-2">{% csrf_token %}
+        <div class="col-md-6">
+            <label for="name" class="form-label">Name</label>
+            <input type="text" class="form-control" id="name" name="name" placeholder="Enter your Name">
+          </div>
+        <div class="col-md-6">
+          <label for="email" class="form-label">Email</label>
+          <input type="email" class="form-control" id="email" name="email" placeholder="Enter your Email">
+        </div>
+        
+        <div class="col-md-6">
+          <label for="phone" class="form-label">Mobile No.</label>
+          <input type="tel" class="form-control" id="phone" name="phone" placeholder="Enter your Phone No.">
+        </div>
+        <div class="col-md-6">
+          <label for="query" class="form-label">Type Of Issue</label>
+          <select id="query" class="form-select" name="issue">
+            <option selected>Delivery Related</option>
+            <option>Login and my account</option>
+            <option>Refund Related</option>
+            <option>Shoppers stop pay later</option>
+            <option>Payment</option>
+            <option>Order Cancellation</option>
+            <option>Super Coins</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="col-md-12">
+          <label for="query" class="form-label">Enter your Query</label>
+          <textarea style="height:100px" class="form-control" id="query" name="query"></textarea>
+        </div>
+        <div class="col-12">
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+      </form>
+</div>
+{% endblock %}

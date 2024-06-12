@@ -1,0 +1,164 @@
+{% extends 'shop/basic.html' %}
+{% block title %} Checkout {% endblock %}
+{% block css %} 
+<style>
+   
+</style>
+{% endblock %}
+{% block body %}
+<div class="container">
+    <!-- Cart card -->
+    <div class="row my-3">
+        <div class="col-md-5 col-lg-4 order-md-last">
+            <h4 class="d-flex justify-content-between align-items-center mb-3">
+                <span class="text-primary">Cart Total</span>
+                <span class="badge bg-primary rounded-pill" id="cartitems"></span>
+            </h4>
+            <ul class="list-group mb-2" id="items">
+                <!-- your cart code here -->
+
+                    <!-- <li class="list-group-item d-flex justify-content-between lh-sm my-2">
+                    <b>Product</b>
+                    <b><span class="text-body-secondary">Quantity</span></b> -->
+                    
+               
+                </ul>
+
+                <ul class="list-group mb-3">
+                <!-- Add promo code and total -->
+                <li class="list-group-item d-flex justify-content-between bg-body-tertiary">
+                    <div class="text-success">
+                        <h6 class="my-0">Promo code</h6>
+                        <small>EXAMPLECODE</small>
+                    </div>
+                    <span class="text-success">−$5</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between">
+                    <span>Total (USD)</span>
+                    <strong id="totalPrice"></strong>
+                </li>
+            </ul>
+            <!-- Promo code form -->
+            <form class="card p-2">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Promo code">
+                    <button type="submit" class="btn btn-secondary">Redeem</button>
+                </div>
+            </form>
+        </div>
+   
+    <!-- End cart card -->
+
+    <!-- Product display -->
+    <div class="col-md-7 col-lg-8" id="product_display">
+        <div class="row my-5">
+            <!-- {% for item_id, details in cart.items %}
+                <li class="list-group-item d-flex justify-content-between lh-sm">
+                    <div>
+                        <h6 class="my-0">{{ details.name }}</h6>
+                        <small class="text-body-secondary">{{ details.description }}</small>
+                    </div>
+                    <span class="text-body-secondary">{{ details.price }}</span>
+                </li>
+                {% endfor %} -->
+        </div>
+    </div>
+</div>
+    <!-- End product display -->
+</div>
+{% endblock %}
+
+
+
+{% block js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    if(localStorage.getItem('cart') == null){
+        var cart = {}
+    } 
+    else {
+        cart = JSON.parse(localStorage.getItem('cart'));
+        document.getElementById('cart').innerHTML = Object.keys(cart).length;
+    }
+    
+    function getPriceValue(priceString) {
+        // Remove the currency symbol and commas (if any)
+        let priceWithoutSymbol = priceString.replace('₹', '').replace(',', '');
+        // Convert the string to a number
+        return parseFloat(priceWithoutSymbol);
+    } 
+    
+    let totalPrice = 0;
+    let totalItems = 0;
+    for(item in cart){
+        let name = cart[item][1];
+        let qty = cart[item][0];
+        let desc = cart[item][2];
+        let price = cart[item][3];
+        let image = cart[item][4];
+        let itemPrice = getPriceValue(price) * qty;
+        totalPrice += itemPrice;
+        totalItems += parseInt(qty);
+        console.log("Total items after update:", totalItems);
+    
+        let mystr = `<li class="list-group-item d-flex justify-content-between lh-sm">
+                        <div>
+                            <h6 class="my-0">${name}</h6>
+                            <!-- Display product name and description -->
+                        </div>                     
+                        <span id="itemqty${item}" class="text-body-secondary">${qty}</span>
+                        <!-- Display item price -->
+                    </li>`;
+        
+        let prod_display = `<li class="list-group-item d-flex justify-content-between lh-sm my-4">
+                                <div d-flex flex-column align-items-start>                              
+                                    <img src='${image}' height="auto" width="210px"></img> 
+                                    <h6 class="my-0">${name}</h6>
+                                    <span class="text-body-secondary">${desc}</span>                       
+                                    <div class="my-2">
+                                        <button id="minus${item}" class="btn btn-primary minus">-</button> 
+                                        <span id="val${item}">${cart[item][0]}</span> 
+                                        <button id="plus${item}" class="btn btn-primary plus">+</button>               
+                                    </div>      
+                                </div>
+                                <span class="text-body-secondary">${price}</span> 
+                            </li>`;
+
+        $('#product_display').off("click", "button.minus");
+        $('#product_display').off("click", "button.plus");
+
+        $('#product_display').on("click", "button.minus", function() {
+            let itemId = this.id.slice(5); // Remove 'minus' from id to get itemId
+            if (cart[itemId][0] > 1) {
+                cart[itemId][0]--; // Decrease quantity by 1
+                totalItems--; // Decrease total items count
+                totalPrice -= getPriceValue(price); // Decrease total price
+                document.getElementById('val'+itemId).innerHTML = cart[itemId][0];
+                document.getElementById('cartitems').innerHTML = totalItems;
+                document.getElementById('itemqty'+itemId).innerHTML = cart[itemId][0];
+                document.getElementById('totalPrice').innerHTML = totalPrice.toFixed(2);
+                localStorage.setItem('cart', JSON.stringify(cart)); // Save updated cart to localStorage
+            }
+        });
+
+        $('#product_display').on("click", "button.plus", function() {
+            let itemId = this.id.slice(4); // Remove 'plus' from id to get itemId
+            cart[itemId][0]++; // Increase quantity by 1
+            totalItems++; // Increase total items count
+            totalPrice += getPriceValue(price); // Increase total price
+            document.getElementById('val'+itemId).innerHTML = cart[itemId][0]; // Update displayed quantity
+            document.getElementById('cartitems').innerHTML = totalItems;
+            document.getElementById('itemqty'+itemId).innerHTML = cart[itemId][0];
+            document.getElementById('totalPrice').innerHTML = totalPrice.toFixed(2);
+            localStorage.setItem('cart', JSON.stringify(cart)); // Save updated cart to localStorage
+        });
+
+
+        $('#product_display .row').append(prod_display);
+        $('#items').append(mystr);   
+    }
+    
+    document.getElementById('cartitems').innerHTML = totalItems;
+    document.getElementById('totalPrice').innerHTML = totalPrice.toFixed(2);
+</script>
+{% endblock %}
